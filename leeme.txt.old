@@ -1,0 +1,120 @@
+--------------------------------------------------------------------------------
+Relative Search                                      Copyright (C) 2013-2014 CUE
+--------------------------------------------------------------------------------
+
+Utilidad para buscar textos de al menos dos caracteres en un fichero.
+
+Los caracteres del texto pueden estar guardados en el fichero separados entre sí
+por un determinado número de bytes que ha de ser el mismo para todos ellos, pero
+lo habitual es que siempre sea de un byte.
+
+Normalmente las búsquedas se hacen con textos que tengan todos sus caracteres en
+mayúsculas o en minúsculas, pues lo normal es que el fichero tenga seguidos esos
+caracteres, pero puede haber casos en los que se necesite incluir otro carácter,
+por lo que se permite usar el comodín '?'. Un ejemplo típico es un texto formado
+por dos palabras separadas por un espacio.
+
+
+Sintaxis: RSEARCH fichero texto [min [max [inc]]]
+
+- fichero ... fichero a analizar
+- texto ..... texto a buscar
+- min ....... separación mínima entre caracteres (1 por defecto)
+- max ....... separación máxima entre caracteres (1 por defecto)
+- inc ....... incremento entre códigos (1 por defecto)
+
+
+Por ejemplo, para buscar el texto "COMPLETED" en Metroid de GB, que no está a la
+vista, haríamos:
+> rsearch metroid.gb COMPLETED 1 10
+
+Decimos que nos busque entre 1 y 10 caracteres de separación, que sería raro que
+la separación fuese mayor, y en pantalla nos saldría:
+[RSEARCH - Relative Search                                                     ]
+[Copyright (C) 2013 CUE                                                        ]
+[                                                                              ]
+[- reading file 'metroid.gb'                                                   ]
+[- searching 'COMPLETED'                                                       ]
+[  + 00004095:4  C2  CE  CC  CF  CB  C4  D3  C4  C3                            ]
+[                                                                              ]
+[Done                                                                          ]
+
+Eso nos dice que en el offset 0x4095 está el texto, con los caracteres separados
+cada 4 bytes, y que la equivalencia sería C=C2, O=CE, M=CC, P=CF, L=CB, ..., por
+si se quiere hacer una tabla de conversión de cacacteres.
+
+
+Si queremos buscar el texto "PLASMA BEAM", que se compone de letras mayúsculas y
+un espacio, haríamos lo siguiente:
+> rsearch metroid.gb PLASMA?BEAM 1 4
+
+Decimos que nos busque entre 1 y 4 caracteres de separación, y el carácter entre
+las dos palabras no sabemos cómo está codificado. Eso nos daría:
+[RSEARCH - Relative Search                                                     ]
+[Copyright (C) 2013 CUE                                                        ]
+[                                                                              ]
+[- reading file 'metroid.gb'                                                   ]
+[ - searching 'PLASMA?BEAM'                                                    ]
+[ + 00005926:1  CF  CB  C0  D2  CC  C0 (FF) C1  C4  C0  CC                     ]
+[                                                                              ]
+[Done                                                                          ]
+
+El texto está en 0x5926 con una sepación de un byte, y nos da la equivalencia de
+cada carácter del texto. El espacio, indicado como comodín, es el valor que sale
+entre paréntesis, el 0xFF.
+
+
+Otro ejemplo para buscar "LEVEL" en el juego Mysterium de GB, que está en varias
+partes de la ROM, pero la que nos interesa, la que se muestra en el mapa, no nos
+sale a simple vista:
+> rsearch mysterium.gb LEVEL 1 4
+
+Ahora nos sale en pantalla:
+[RSEARCH - Relative Search                                                     ]
+[Copyright (C) 2013 CUE                                                        ]
+[                                                                              ]
+[- reading file 'mysterium.gb'                                                 ]
+[- searching 'LEVEL'                                                           ]
+[  + 000014BB:3  C0  B9  CA  B9  C0                                            ]
+[  + 00004B39:1  4C  45  56  45  4C                                            ]
+[  + 00005567:1  4C  45  56  45  4C                                            ]
+[  + 00006A47:1  4C  45  56  45  4C                                            ]
+[  + 0001AC9A:1  4C  45  56  45  4C                                            ]
+[Done                                                                          ]
+
+Los offsets con separación de un byte son los que se ven con cualquier editor de
+forma normal, asignando a cada carácter su valor ASCII: L=4C, E=45, V=56.
+
+El offset con 3 bytes de separación, el primero de la lista, es el que estábamos
+buscando, con códigos L=C0, E=B9, V=CA.
+
+
+Se puede dar el caso en el que la fuente no sea contínua, o sea, que cada código
+no se obtenga sumando uno al anterior (A=00, B=01, C=02, ...), en cuyo caso debe
+indicarse el valor a añadir. Por ejemplo, para {A=00, B=03, C=06, ...} deberemos
+indicar que el valor es 3. Si no se indica ningún valor, que es lo más habitual,
+se tomará el valor 1.
+
+
+Ahora también busca cadenas hexadecimales. En vez del texto se puede indicar una
+secuencia de bytes hexadecimales comenzando con el carácter '$', pero no permite
+incluir comodines en la cadena. Su funcionamiento es el mismo:
+> rsearch fichero.bin $12345678 1 2
+
+
+historia
+--------
+v1.0 2013-04-29: primera versión pública
+v1.1 2013-04-30: añadido el incremento entre códigos
+v1.2 2013-05-12: resuelto un bug cuando el texto estaba al final del fichero
+                 los valores 'min', 'max' e 'inc' son opcionales (1 por defecto)
+                 se permiten comodines '?' en el texto
+                 muestra todos los bytes encontrados por cada offset
+                 los offsets ahora salen ordenados
+v1.3 2013-07-29: cambios cosméticos
+v1.4 2014-04-13: soporte para datos hexadecimales en vez de texto
+
+
+--------------------------------------------------------------------------------
+Relative Search                                      Copyright (C) 2013-2014 CUE
+--------------------------------------------------------------------------------
