@@ -59,10 +59,10 @@ void Title(void) {
 /*----------------------------------------------------------------------------*/
 void Usage(void) {
   Exit(
-    "Usage: RSEARCH filename text [min [max [inc]]]\n"
+    "Usage: RSEARCH text filename [min [max [inc]]]\n"
     "\n"
-    "- filename ... file to look\n"
     "- text ....... text to search or hexadecimal codes\n"
+    "- filename ... file to look\n"
     "- min ........ min separation between characters (1 by default)\n"
     "- max ........ max separation between characters (1 by default)\n"
     "- inc ........ optional code increment (1 by default)\n"

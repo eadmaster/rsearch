@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   inc = argc < 6 ? 1 : strtol(argv[5], NULL, 0);
   if (!inc) Exit("Bad increment value\n");
 
-  RSearch(argv[1], argv[2], min, max, inc);
+  RSearch(argv[2], argv[1], min, max, inc);
 
   //printf("\nDone\n");
 
@@ -79,13 +79,14 @@ void RSearch(char *filename, char *str, int min, int max, int inc) {
     for (start = 0; text[start] == WILDCARD; start++);
   }
 
-  printf("- reading file '%s'\n", filename);
+  //printf("- reading file '%s'\n", filename);
+  puts(filename);
 
   length = FileSize(filename);
   buffer = FileLoad(filename);
 
-  if (*str == '$') printf("- searching hexadecimal '%s'\n", str);
-  else             printf("- searching string '%s'\n", str);
+  //if (*str == '$') printf("- searching hexadecimal '%s'\n", str);
+  //else             printf("- searching string '%s'\n", str);
 
   diff = Allocate(len, sizeof(char));
   for (l = 0; l < len; l++) diff[l] = 0;
@@ -114,7 +115,7 @@ void RSearch(char *filename, char *str, int min, int max, int inc) {
       }
 
       if (l == len) {
-        printf("  + %08X:%X ", i, j);
+        printf("%08X:%X ", i, j);
         for (l = 0; l < len; l++) {
           if ((*str == '$') || (text[l] != WILDCARD))
             printf(" %02X ", buffer[i+l*j]);
